@@ -1,0 +1,168 @@
+Here’s a breakdown of different types of indexes in MongoDB with examples:
+
+### 1. **Single Field Index**
+   - **Description**: An index on a single field, often used when querying a field frequently.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ name: 1 });  // Ascending index on the "name" field
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ name: "John Doe" });
+   ```
+
+### 2. **Compound Index**
+   - **Description**: An index created on multiple fields, useful when querying based on more than one field.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ age: 1, city: -1 });  // Ascending on "age", Descending on "city"
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ age: 30, city: "New York" });
+   ```
+
+### 3. **Multikey Index**
+   - **Description**: Automatically created when you create an index on a field that contains an array.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ hobbies: 1 });  // Index on the "hobbies" array
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ hobbies: "reading" });
+   ```
+
+### 4. **Geospatial Index**
+   - **Description**: Used for geospatial queries such as finding locations within a radius.
+   - **Example (2dsphere Index)**:
+     ```javascript
+     db.places.createIndex({ location: "2dsphere" });
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.places.find({
+     location: { $near: { $geometry: { type: "Point", coordinates: [ -73.97, 40.77 ] }, $maxDistance: 5000 } }
+   });
+   ```
+
+### 5. **Text Index**
+   - **Description**: Supports text search on string fields. MongoDB creates a special index for performing text searches.
+   - **Example**:
+     ```javascript
+     db.articles.createIndex({ title: "text", content: "text" });  // Text index on "title" and "content"
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.articles.find({ $text: { $search: "mongodb tutorial" } });
+   ```
+
+### 6. **Hashed Index**
+   - **Description**: This index uses a hash of the field’s value. It is often used in sharded collections or for equality queries.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ userId: "hashed" });  // Hashed index on "userId"
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ userId: "user123" });
+   ```
+
+### 7. **Wildcard Index**
+   - **Description**: Indexes all fields of a document. This is useful when documents have dynamic fields.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ "$**": 1 });  // Wildcard index on all fields
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ "profile.age": 25 });
+   ```
+
+### 8. **TTL (Time-To-Live) Index**
+   - **Description**: Automatically deletes documents after a specified time (in seconds). Often used for temporary data.
+   - **Example**:
+     ```javascript
+     db.sessions.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600 });
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.sessions.insert({ createdAt: new Date() });
+   // Document will be automatically deleted after 3600 seconds (1 hour).
+   ```
+
+### 9. **Partial Index**
+   - **Description**: Indexes only a subset of documents that match a filter condition.
+   - **Example**:
+     ```javascript
+     db.orders.createIndex({ status: 1 }, { partialFilterExpression: { status: { $eq: "completed" } } });
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.orders.find({ status: "completed" });  // Index only the "completed" orders
+   ```
+
+### 10. **Sparse Index**
+   - **Description**: An index that only includes documents with the indexed field. If the field is missing in a document, it is not indexed.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ email: 1 }, { sparse: true });
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ email: "example@example.com" });
+   // Will only index documents that have an "email" field
+   ```
+
+### 11. **Collation Index**
+   - **Description**: Allows for locale-specific string comparison rules, such as case-insensitivity or accent insensitivity.
+   - **Example**:
+     ```javascript
+     db.users.createIndex({ name: 1 }, { collation: { locale: "en", strength: 2 } });
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.users.find({ name: "john" }).collation({ locale: "en", strength: 2 });
+   // Case-insensitive search
+   ```
+
+### 12. **Index on Array Fields (Indexing Multiple Elements)**
+   - **Description**: MongoDB automatically creates an index entry for each element of an array.
+   - **Example**:
+     ```javascript
+     db.products.createIndex({ tags: 1 });
+     ```
+
+   **Usage**: 
+   ```javascript
+   db.products.find({ tags: "electronics" });
+   ```
+
+---
+
+### Summary of Examples:
+
+- **Single Field Index**: `createIndex({ fieldName: 1 })`
+- **Compound Index**: `createIndex({ field1: 1, field2: -1 })`
+- **Multikey Index**: `createIndex({ arrayField: 1 })`
+- **Geospatial Index**: `createIndex({ location: "2dsphere" })`
+- **Text Index**: `createIndex({ title: "text", content: "text" })`
+- **Hashed Index**: `createIndex({ fieldName: "hashed" })`
+- **Wildcard Index**: `createIndex({ "$**": 1 })`
+- **TTL Index**: `createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600 })`
+- **Partial Index**: `createIndex({ field: 1 }, { partialFilterExpression: { field: { $eq: value } } })`
+- **Sparse Index**: `createIndex({ fieldName: 1 }, { sparse: true })`
+- **Collation Index**: `createIndex({ fieldName: 1 }, { collation: { locale: "en", strength: 2 } })`
+
+Each index type serves a specific use case, and understanding when to use them can significantly improve query performance in MongoDB.
